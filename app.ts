@@ -1,11 +1,27 @@
 // Kyran Stagg 28/11/2021
 // program to validate flybuys card number via cli
 
-import { CardController } from "./src/controllers/card"
+const db = require("./src/resources/db");
+const expressinit = require("./src/resources/express");
 
-function main() {
-    const cardController:CardController = new CardController()
-    cardController.start()
+const app = expressinit();
+const port = 4941;
+
+// Test connection to MySQL on start-up
+async function testDbConnection() {
+    try {
+        await db.createPool();
+        await db.getPool().then(function(p:any) {
+            return p.getConnection()
+        })
+    } catch (err: any) {
+        console.error(`Unable to connect to MySQL: ${err.message}`);
+        throw err;
+    }
 }
 
-main()
+testDbConnection().then(function () {
+    app.listen(port, function () {
+        console.log(`Listening on port: ${port}`);
+    });
+});
